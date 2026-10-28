@@ -7,11 +7,15 @@ const {User,Task} = require("./Models/tasks");
 const validator = require("validator");
 const jwt = require("jsonwebtoken");
 require('dotenv').config();
+const cookieParser = require('cookie-parser');
+const userAuth = require("./Middleware/userAuth");
 
 
 const app = express();
 
-app.use(express.json());
+
+app.use(express.json());//middleware
+app.use(cookieParser())//middleware
 
 
 app.post("/register",async(req,res)=>{
@@ -44,7 +48,7 @@ app.post("/register",async(req,res)=>{
 })
 
 
-app.post("/tasks",async(req,res)=>{
+app.post("/tasks",userAuth,async(req,res)=>{
 
     try
     {
@@ -63,14 +67,21 @@ app.post("/tasks",async(req,res)=>{
 
 })
 
-app.get("/tasks/:id",async(req,res)=>{
+
+
+app.get("/tasks",userAuth,async(req,res)=>{
 
     try
     {
-        
-    console.log(req.params.id);
-    const ans = await Task.findOne({userId:req.params.id});
-    res.send(ans);
+         const task = await  Task.findOne({userId:req.user._id});
+
+         if(!task)
+         {
+            return res.status(404).send("User doesnot exists");
+         }
+
+         res.send(task);
+
     }
     catch(error)
     {
@@ -79,7 +90,7 @@ app.get("/tasks/:id",async(req,res)=>{
 })
 
 
-app.patch("/tasks",async(req,res)=>{
+app.patch("/tasks",userAuth,async(req,res)=>{
 
     try
     {
@@ -88,12 +99,11 @@ app.patch("/tasks",async(req,res)=>{
     {$set:{completed:req.body.completed}}
     );
 
-    console.log(result);
     res.send("Updated Successfully");
     }
     catch(error)
     {
-        res.send(500).status("Internal Server Error");
+        res.status(500).send("Internal Server Error");
     }
 })
 
