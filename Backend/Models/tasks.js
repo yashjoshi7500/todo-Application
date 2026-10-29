@@ -1,5 +1,8 @@
 const mongoose= require("mongoose");
 const {Schema} = mongoose;
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+
 const userSchema= new Schema({
 
     firstName:{
@@ -50,6 +53,22 @@ const taskSchema = new Schema({
         ref:"User"
     }
 },{timestamps:true});
+
+
+
+userSchema.methods.getJWT = function(){
+
+    const result = jwt.sign({_id:this._id,emailId:this.emailId},process.env.SECRET_KEY,{expiresIn:1800});
+    return result;
+    //here this refers to the current object who is calling the function 
+
+}
+
+userSchema.methods.verifyPassword = async function(userPassword){
+
+    const result = await bcrypt.compare(userPassword,this.password);
+    return result;
+}
 
 
 const User = mongoose.model("User",userSchema);

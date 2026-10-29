@@ -54,7 +54,7 @@ app.post("/tasks",userAuth,async(req,res)=>{
     {
     validateTask(req.body);
 
-    await Task.create(req.body);
+    await Task.create({...req.body,userId:req.user._id});
     res.status(201).send("Task Created Successfully");
 
     }
@@ -125,14 +125,13 @@ app.post("/login",async(req,res)=>{
     if(!user)
         return res.status(401).send("Invalid Email or Password");
 
-    const isPasswordCorrect = await bcrypt.compare(password,user.password);
+    const isPasswordCorrect = user.verifyPassword(password);
 
     if(!isPasswordCorrect)
         return res.status(401).send("Invalid Email or Password");
 
-    const jwtToken=jwt.sign({_id:user._id,emailId:user.emailId},process.env.SECRET_KEY,{expiresIn:1800});
+    const jwtToken=user.getJWT();
     
-
     res.cookie("token",jwtToken);
 
     res.status(200).send("User Login Successfully");

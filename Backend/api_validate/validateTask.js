@@ -5,7 +5,7 @@ function validateTask(data)
 {
 
 
-    const mandatoryField=["title","userId"];
+    const mandatoryField=["title"];
     const result = mandatoryField.every(value=>Object.keys(data).includes(value));
 
      if(!result)
@@ -19,9 +19,7 @@ function validateTask(data)
         throw new Error("Completed must be a Boolean");
 
      
-    if (!mongoose.isValidObjectId(data.userId)) 
-        throw new Error("Invalid User ID");
-
+    
 }
 
 module.exports = validateTask;

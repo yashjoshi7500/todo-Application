@@ -22,7 +22,7 @@ const  userAuth= async(req,res,next)=>{
     }
     catch(error)
     {
-        res.status(401).send("Invalid Token Or Expired");
+        return res.status(401).send("Invalid Token Or Expired");
     }
 
     const {_id}=payload;
